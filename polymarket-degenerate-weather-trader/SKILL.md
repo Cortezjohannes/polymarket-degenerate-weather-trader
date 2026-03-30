@@ -1,9 +1,9 @@
 ---
-name: polymarket-weather-desk
+name: polymarket-degenerate-weather-trader
 description: Deterministic workflow for Polymarket weather trading research, monitoring, and execution. Use when scanning March/next-day US weather markets, comparing open weather positions against the correct NOAA station, mapping the right bucket from Gamma/Polymarket weather markets, ranking buckets by confidence or price cap, rotating out-of-bucket positions, or executing price-aware buys/sells without drifting into generic forecast summaries.
 ---
 
-# Polymarket Weather Desk
+# Polymarket Degenerate Weather Trader
 
 Use this skill for weather-market work that must be **precise**, **repeatable**, and **execution-aware**.
 

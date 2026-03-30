@@ -1,4 +1,4 @@
-# polymarket-weather-desk
+# polymarket-degenerate-weather-trader
 
 Deterministic skill + script toolkit for **Polymarket weather trading**.
 
@@ -17,7 +17,7 @@ The goal is to reduce drift, vague reasoning, and prompt-only hallucination in w
 ## What this repo contains
 
 - `polymarket-weather-desk/` — the skill folder
-- `dist/polymarket-weather-desk.skill` — packaged skill archive
+- `dist/polymarket-degenerate-weather-trader.skill` — packaged skill archive
 
 Inside the skill:
 - `SKILL.md` — usage guide and workflows
