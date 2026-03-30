@@ -1,11 +1,11 @@
 ---
 name: polymarket-weather-desk
-description: Deterministic workflow for Polymarket weather trading research and monitoring. Use when scanning March/next-day US weather markets, comparing open weather positions against the correct NOAA station, mapping the right bucket from Gamma/Polymarket weather markets, ranking buckets by confidence or price cap, rotating out-of-bucket positions, or producing reliable weather position reports without drifting into generic forecast summaries.
+description: Deterministic workflow for Polymarket weather trading research, monitoring, and execution. Use when scanning March/next-day US weather markets, comparing open weather positions against the correct NOAA station, mapping the right bucket from Gamma/Polymarket weather markets, ranking buckets by confidence or price cap, rotating out-of-bucket positions, or executing price-aware buys/sells without drifting into generic forecast summaries.
 ---
 
 # Polymarket Weather Desk
 
-Use this skill for weather-market work that must be **precise** and **repeatable**.
+Use this skill for weather-market work that must be **precise**, **repeatable**, and **execution-aware**.
 
 ## Core rules
 - Use **Gamma/Polymarket directly** for markets and event descriptions.
@@ -24,7 +24,7 @@ Use this skill for weather-market work that must be **precise** and **repeatable
 Run:
 
 ```bash
-cd /data/.openclaw/workspace/polymarket-weather-desk && python3 scripts/weather_positions_report.py
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/weather_positions_report.py
 ```
 
 This prints a deterministic table with:
@@ -43,13 +43,13 @@ Use this instead of freeform reasoning for periodic reports.
 Run:
 
 ```bash
-cd /data/.openclaw/workspace/polymarket-weather-desk && python3 scripts/scan_us_board.py --date YYYY-MM-DD
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/scan_us_board.py --date YYYY-MM-DD
 ```
 
 Optional confidence cross-check:
 
 ```bash
-cd /data/.openclaw/workspace/polymarket-weather-desk && python3 scripts/scan_us_board.py --date YYYY-MM-DD --cross-check-openmeteo
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/scan_us_board.py --date YYYY-MM-DD --cross-check-openmeteo
 ```
 
 Use this for ranking cities by:
@@ -58,7 +58,72 @@ Use this for ranking cities by:
 - cheap upside
 - source agreement / disagreement
 
-### 3. Judge whether to rotate or exit
+### 3. Buy a bucket deterministically
+At exact ask:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/buy_bucket.py <market-slug> --usd 4 --at-ask
+```
+
+At your own limit price:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/buy_bucket.py <market-slug> --usd 4 --price 0.31
+```
+
+### 4. Sell a held position deterministically
+At current bid:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/sell_position.py <market-slug> --at-bid
+```
+
+At current ask:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/sell_position.py <market-slug> --at-ask
+```
+
+At your own limit price:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/sell_position.py <market-slug> --price 0.93
+```
+
+Emergency-style sell:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/sell_position.py <market-slug> --market
+```
+
+### 5. Rotate one bucket into another
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/rotate_bucket.py --sell-slug <old-slug> --buy-slug <new-slug> --sell-price 0.33 --buy-price 0.22 --usd 4
+```
+
+Use this when you want a deterministic sell+buy pair instead of a freeform rotation.
+
+### 6. List or cancel open orders
+List live orders:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/list_open_orders.py
+```
+
+Cancel all live orders:
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/cancel_open_orders.py --all
+```
+
+Cancel specific order(s):
+
+```bash
+cd /data/.openclaw/workspace/skills/polymarket-weather-desk && python3 scripts/cancel_open_orders.py --id <order-id>
+```
+
+## Rotation / exit judgment
 Use the script outputs first, then apply this logic:
 - if current bucket is wrong and replacement bucket is still cheap + confidence is acceptable → rotate
 - if current bucket is wrong and replacement bucket is already expensive or confidence is weak → exit, do not force a rotate
@@ -80,6 +145,12 @@ Hard rule:
 ## Scripts
 - `scripts/weather_positions_report.py` — deterministic live position vs NOAA report
 - `scripts/scan_us_board.py` — deterministic March/next-day US board scan
+- `scripts/buy_bucket.py` — deterministic bucket entry helper
+- `scripts/sell_position.py` — deterministic position exit helper
+- `scripts/rotate_bucket.py` — deterministic sell+buy rotation helper
+- `scripts/list_open_orders.py` — list live orders
+- `scripts/cancel_open_orders.py` — cancel live orders
+- `scripts/market_utils.py` — market snapshot helpers
 - `scripts/polymarket_client.py` — helper client copied in for reliable wallet/position access
 
 ## Notes
